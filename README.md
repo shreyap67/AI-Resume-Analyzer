@@ -95,7 +95,6 @@ The platform includes a complete **dark SaaS dashboard UI** with Chart.js analyt
 
 ## Screenshots
 
-> _Replace these placeholders with actual screenshots after running the app._
 
 | Page | Description |
 |------|-------------|

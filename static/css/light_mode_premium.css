@@ -1,0 +1,779 @@
+/* ================================================================
+   light_mode_premium.css
+   Drop this file into static/css/ and link it in base.html
+   AFTER main.css and dashboard.css.
+
+   Scope: ALL rules are scoped to .light-theme — dark mode is
+   completely untouched. No HTML, routes, or JS changes needed.
+   ================================================================ */
+
+/* ── 1. CSS VARIABLES – richer light palette ──────────────────── */
+.light-theme {
+  /* Background gradient — soft lavender → blush → sky */
+  --grad-bg: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 25%, #fce7f3 60%, #e0f2fe 100%);
+
+  /* Surface tokens */
+  --bg0: #f5f3ff;
+  --bg1: #ede9fe;
+  --bg2: #fce7f3;
+
+  /* Text */
+  --tx:    rgba(15, 23, 42, 0.92);
+  --tx2:   rgba(15, 23, 42, 0.65);
+  --muted: rgba(15, 23, 42, 0.42);
+  --border: rgba(99, 60, 180, 0.10);
+
+  /* Card glass */
+  --card-bg:       rgba(255, 255, 255, 0.72);
+  --card-border:   rgba(139, 92, 246, 0.14);
+  --card-shadow:   0 4px 24px rgba(109, 40, 217, 0.07), 0 1px 4px rgba(0,0,0,0.05);
+  --card-shadow-hover: 0 12px 40px rgba(109, 40, 217, 0.13), 0 2px 8px rgba(0,0,0,0.06);
+
+  /* Sidebar / topbar */
+  --sidebar-bg: rgba(255, 255, 255, 0.82);
+  --topbar-bg:  rgba(255, 255, 255, 0.78);
+  --sidebar-border: rgba(139, 92, 246, 0.10);
+
+  /* Gradients (keep neon accents, lighten them a touch for light mode) */
+  --grad-primary: linear-gradient(135deg, #7c3aed, #2563eb);
+  --grad-purple:  linear-gradient(135deg, #a855f7, #ec4899);
+  --glow-card:    0 0 0 1px rgba(124, 58, 237, 0.08);
+}
+
+/* ── 2. PAGE BACKGROUND ───────────────────────────────────────── */
+.light-theme body {
+  background: var(--grad-bg);
+  background-attachment: fixed;
+  background-size: 400% 400%;
+  animation: ltBgShift 18s ease infinite;
+}
+
+@keyframes ltBgShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Soften the decorative orbs */
+.light-theme .orb { opacity: 0.07; }
+.light-theme .orb-blue   { background: #7c3aed; }
+.light-theme .orb-purple  { background: #a855f7; }
+
+/* ── 3. SIDEBAR ───────────────────────────────────────────────── */
+.light-theme .sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 4px 0 24px rgba(109, 40, 217, 0.05);
+}
+
+.light-theme .sidebar::before {
+  background: var(--grad-primary);
+  opacity: 0.85;
+}
+
+.light-theme .logo-text {
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.light-theme .logo-icon {
+  background: var(--grad-primary);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.30);
+}
+
+.light-theme .nav-group-label {
+  color: rgba(15, 23, 42, 0.35);
+}
+
+.light-theme .nav-item {
+  color: rgba(15, 23, 42, 0.52);
+}
+
+.light-theme .nav-item:hover {
+  background: rgba(124, 58, 237, 0.07) !important;
+  color: rgba(15, 23, 42, 0.88) !important;
+}
+
+.light-theme .nav-item.active {
+  background: linear-gradient(90deg, rgba(124,58,237,0.10), rgba(37,99,235,0.06));
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.18);
+}
+
+.light-theme .nav-item.active::before {
+  background: var(--grad-primary);
+}
+
+.light-theme .nav-divider {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .nav-badge {
+  background: rgba(124, 58, 237, 0.10);
+  color: #7c3aed;
+  border: 1px solid rgba(124, 58, 237, 0.18);
+}
+
+.light-theme .sidebar-footer {
+  border-top-color: rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .sidebar-user {
+  background: rgba(124, 58, 237, 0.05);
+  border-color: rgba(124, 58, 237, 0.10);
+}
+
+.light-theme .user-name  { color: rgba(15, 23, 42, 0.88); }
+.light-theme .user-email { color: rgba(15, 23, 42, 0.42); }
+
+/* ── 4. TOPBAR ────────────────────────────────────────────────── */
+.light-theme .topbar {
+  background: var(--topbar-bg);
+  border-bottom: 1px solid var(--sidebar-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 2px 16px rgba(109, 40, 217, 0.05);
+}
+
+.light-theme .topbar-title { color: rgba(15, 23, 42, 0.90); }
+
+.light-theme .ai-badge {
+  background: linear-gradient(90deg, rgba(124,58,237,0.10), rgba(37,99,235,0.08));
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.22);
+}
+
+.light-theme .theme-toggle {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.10);
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.light-theme .theme-toggle:hover {
+  border-color: rgba(124, 58, 237, 0.30);
+  color: #7c3aed;
+}
+
+.light-theme .icon-btn { color: rgba(15, 23, 42, 0.45); }
+.light-theme .icon-btn:hover {
+  color: rgba(15, 23, 42, 0.85);
+  background: rgba(124, 58, 237, 0.06);
+}
+
+/* Avatar dropdown */
+.light-theme .avatar-dropdown {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: rgba(139, 92, 246, 0.12);
+  box-shadow: 0 16px 48px rgba(109, 40, 217, 0.12);
+}
+
+.light-theme .dropdown-header {
+  border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .dropdown-item { color: rgba(15, 23, 42, 0.55); }
+.light-theme .dropdown-item:hover {
+  background: rgba(124, 58, 237, 0.06);
+  color: rgba(15, 23, 42, 0.90);
+}
+
+.light-theme .dropdown-divider { background: rgba(15, 23, 42, 0.06); }
+
+/* ── 5. PAGE CONTENT spacing ──────────────────────────────────── */
+.light-theme .page-content {
+  padding: 36px 40px;
+}
+
+@media (max-width: 768px) {
+  .light-theme .page-content { padding: 20px 16px; }
+}
+
+/* ── 6. CARDS – glass morphism, rounded, lifted ───────────────── */
+.light-theme .card,
+.light-theme .stat-card,
+.light-theme .resume-card,
+.light-theme .job-match-row {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.28s cubic-bezier(0.34,1.2,0.64,1),
+              box-shadow 0.28s ease,
+              border-color 0.28s ease;
+  /* Page-load entrance */
+  animation: ltCardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ltCardIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Stagger cards automatically using :nth-child */
+.light-theme .card:nth-child(1),
+.light-theme .stat-card:nth-child(1) { animation-delay: 0.03s; }
+.light-theme .card:nth-child(2),
+.light-theme .stat-card:nth-child(2) { animation-delay: 0.08s; }
+.light-theme .card:nth-child(3),
+.light-theme .stat-card:nth-child(3) { animation-delay: 0.13s; }
+.light-theme .card:nth-child(4),
+.light-theme .stat-card:nth-child(4) { animation-delay: 0.18s; }
+.light-theme .card:nth-child(n+5),
+.light-theme .stat-card:nth-child(n+5) { animation-delay: 0.23s; }
+
+.light-theme .card:hover,
+.light-theme .stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(124, 58, 237, 0.24);
+}
+
+/* Inner decorative tints on special cards */
+.light-theme .card-glow {
+  background: linear-gradient(135deg, rgba(124,58,237,0.05), rgba(37,99,235,0.04));
+  border-color: rgba(124, 58, 237, 0.18);
+}
+
+.light-theme .card-gradient {
+  background: linear-gradient(135deg, rgba(168,85,247,0.07), rgba(236,72,153,0.05));
+  border-color: rgba(168, 85, 247, 0.20);
+}
+
+.light-theme .card-subtle {
+  background: rgba(255, 255, 255, 0.50);
+}
+
+/* Card title & links */
+.light-theme .card-title { color: rgba(15, 23, 42, 0.90); }
+.light-theme .card-link   { color: #7c3aed; }
+.light-theme .card-link:hover { color: #6d28d9; }
+
+/* ── 7. STAT CARDS ────────────────────────────────────────────── */
+.light-theme .stats-grid { gap: 20px; margin-bottom: 36px; }
+
+.light-theme .stat-card:hover {
+  border-color: rgba(124, 58, 237, 0.24);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.light-theme .stat-value  { color: rgba(15, 23, 42, 0.92); }
+.light-theme .stat-label  { color: rgba(15, 23, 42, 0.45); }
+.light-theme .stat-trend  { }
+
+/* Icon bg tints – keep same hues, slightly more saturated on white */
+.light-theme .blue-bg   { background: rgba(124, 58, 237, 0.10); }
+.light-theme .purple-bg { background: rgba(168, 85, 247, 0.10); }
+.light-theme .pink-bg   { background: rgba(236, 72, 153, 0.10); }
+.light-theme .green-bg  { background: rgba(16, 185, 129, 0.10); }
+.light-theme .teal-bg   { background: rgba(20, 184, 166, 0.10); }
+.light-theme .gray-bg   { background: rgba(15, 23, 42,  0.06); }
+
+/* ── 8. TYPOGRAPHY ────────────────────────────────────────────── */
+.light-theme h1,
+.light-theme h2,
+.light-theme h3,
+.light-theme h4,
+.light-theme h5,
+.light-theme h6 {
+  color: rgba(15, 23, 42, 0.92);
+  line-height: 1.25;
+}
+
+.light-theme p,
+.light-theme li { color: rgba(15, 23, 42, 0.70); }
+
+.light-theme .gradient-text {
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.light-theme .gradient-text-purple {
+  background: var(--grad-purple);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.light-theme .text-muted    { color: rgba(15, 23, 42, 0.42) !important; }
+.light-theme .text-secondary{ color: rgba(15, 23, 42, 0.60) !important; }
+.light-theme .text-blue     { color: #7c3aed !important; }
+
+/* ── 9. BUTTONS ───────────────────────────────────────────────── */
+
+/* Primary — pill-shaped gradient with glow */
+.light-theme .btn-primary {
+  background: var(--grad-primary);
+  border-radius: 999px;
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.28);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: box-shadow 0.25s ease, transform 0.22s ease, filter 0.22s ease;
+}
+
+.light-theme .btn-primary:hover {
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.42);
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  color: #fff;
+}
+
+.light-theme .btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28);
+}
+
+/* Ghost */
+.light-theme .btn-ghost {
+  background: rgba(255, 255, 255, 0.70);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  border-radius: 999px;
+  color: rgba(15, 23, 42, 0.70);
+  backdrop-filter: blur(8px);
+}
+
+.light-theme .btn-ghost:hover {
+  border-color: rgba(124, 58, 237, 0.35);
+  background: rgba(124, 58, 237, 0.06);
+  color: #7c3aed;
+}
+
+/* Danger */
+.light-theme .btn-danger {
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.22);
+  color: #dc2626;
+}
+
+.light-theme .btn-danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* Sm / Lg inherit pill shape */
+.light-theme .btn { border-radius: 999px; }
+.light-theme .btn-sm { border-radius: 999px; }
+.light-theme .btn-lg { border-radius: 999px; }
+
+/* ── 10. FORMS ────────────────────────────────────────────────── */
+.light-theme .form-label {
+  color: rgba(15, 23, 42, 0.50);
+  letter-spacing: 0.06em;
+}
+
+.light-theme .form-input {
+  background: rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 14px;
+  color: rgba(15, 23, 42, 0.90);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.light-theme .form-input::placeholder { color: rgba(15, 23, 42, 0.32); }
+
+.light-theme .form-input:focus {
+  border-color: rgba(124, 58, 237, 0.50);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.10);
+  background: #fff;
+}
+
+.light-theme .form-select {
+  background: rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 14px;
+  color: rgba(15, 23, 42, 0.90);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(100,60,200,0.5)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  color-scheme: light;
+}
+
+.light-theme .form-select:focus {
+  border-color: rgba(124, 58, 237, 0.50);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.10);
+}
+
+.light-theme .form-select option {
+  background: #ffffff;
+  color: rgba(15, 23, 42, 0.90);
+}
+
+/* Dark-select & dark-input (used in Resume Analyzer) */
+.light-theme .dark-select,
+.light-theme .dark-input {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(124, 58, 237, 0.16);
+  border-radius: 14px;
+  color: rgba(15, 23, 42, 0.90);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  color-scheme: light;
+}
+
+.light-theme .dark-select option { background: #fff; color: #0f172a; }
+.light-theme .dark-input::placeholder { color: rgba(15, 23, 42, 0.32); }
+
+.light-theme .dark-select:focus,
+.light-theme .dark-input:focus {
+  border-color: rgba(124, 58, 237, 0.50);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.10);
+}
+
+.light-theme .select-wrapper::after {
+  color: rgba(100, 60, 200, 0.50);
+}
+
+/* Fix select popup color in light mode */
+.light-theme select,
+.light-theme select option {
+  background-color: #ffffff !important;
+  color: rgba(15, 23, 42, 0.90) !important;
+  color-scheme: light;
+}
+
+.light-theme select option:hover,
+.light-theme select option:checked {
+  background-color: #ede9fe !important;
+  color: #7c3aed !important;
+}
+
+/* Or-divider */
+.light-theme .or-divider { color: rgba(15, 23, 42, 0.38); }
+.light-theme .or-divider::before,
+.light-theme .or-divider::after { background: rgba(124, 58, 237, 0.10); }
+
+/* ── 11. TAGS / BADGES / CHIPS ────────────────────────────────── */
+.light-theme .tag-green  { background: rgba(16,185,129,0.10); color: #059669; border-color: rgba(16,185,129,0.22); }
+.light-theme .tag-red    { background: rgba(239,68,68,0.09);  color: #dc2626; border-color: rgba(239,68,68,0.20); }
+.light-theme .tag-blue   { background: rgba(124,58,237,0.09); color: #7c3aed; border-color: rgba(124,58,237,0.18); }
+.light-theme .tag-purple { background: rgba(168,85,247,0.09); color: #9333ea; border-color: rgba(168,85,247,0.18); }
+
+.light-theme .badge-success { background: rgba(16,185,129,0.10);  color: #059669; border-color: rgba(16,185,129,0.22); }
+.light-theme .badge-info    { background: rgba(124,58,237,0.09);  color: #7c3aed; border-color: rgba(124,58,237,0.18); }
+.light-theme .badge-warning { background: rgba(245,158,11,0.10);  color: #d97706; border-color: rgba(245,158,11,0.22); }
+.light-theme .badge-danger  { background: rgba(239,68,68,0.09);   color: #dc2626; border-color: rgba(239,68,68,0.20); }
+
+.light-theme .chip-blue   { background: rgba(124,58,237,0.09); color: #7c3aed; border-color: rgba(124,58,237,0.18); }
+.light-theme .chip-green  { background: rgba(16,185,129,0.10); color: #059669; border-color: rgba(16,185,129,0.20); }
+.light-theme .chip-purple { background: rgba(168,85,247,0.09); color: #9333ea; border-color: rgba(168,85,247,0.18); }
+
+/* ── 12. PROGRESS BARS ────────────────────────────────────────── */
+.light-theme .prog-bar {
+  background: rgba(15, 23, 42, 0.07);
+}
+
+.light-theme .prog-fill-blue   { background: var(--grad-primary); }
+.light-theme .prog-fill-purple { background: var(--grad-purple); }
+.light-theme .prog-fill-green  { background: linear-gradient(90deg, #10b981, #14b8a6); }
+.light-theme .prog-fill-gray   { background: rgba(15, 23, 42, 0.18); }
+
+/* ── 13. TABLE ────────────────────────────────────────────────── */
+.light-theme .data-table th {
+  color: rgba(15, 23, 42, 0.45);
+  border-bottom-color: rgba(124, 58, 237, 0.10);
+}
+
+.light-theme .data-table td {
+  border-bottom-color: rgba(15, 23, 42, 0.05);
+  color: rgba(15, 23, 42, 0.80);
+}
+
+.light-theme .data-table tr:hover td {
+  background: rgba(124, 58, 237, 0.025);
+}
+
+/* ── 14. SCORE CIRCLE ─────────────────────────────────────────── */
+.light-theme .score-big {
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.light-theme .score-stats {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(124, 58, 237, 0.10);
+}
+
+.light-theme .score-sublabel { color: rgba(15, 23, 42, 0.42); }
+.light-theme .score-stat-label { color: rgba(15, 23, 42, 0.42); }
+.light-theme .score-stat-val { color: rgba(15, 23, 42, 0.88); }
+
+/* ── 15. UPLOAD ZONE ──────────────────────────────────────────── */
+.light-theme .upload-zone {
+  border-color: rgba(124, 58, 237, 0.24);
+  background: rgba(124, 58, 237, 0.03);
+  border-radius: 18px;
+}
+
+.light-theme .upload-zone:hover {
+  border-color: rgba(124, 58, 237, 0.50);
+  background: rgba(124, 58, 237, 0.06);
+  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.06);
+}
+
+.light-theme .upload-text { color: rgba(15, 23, 42, 0.80); }
+.light-theme .upload-sub  { color: rgba(15, 23, 42, 0.48); }
+.light-theme .upload-browse { color: #7c3aed; }
+.light-theme .upload-hint { color: rgba(124, 58, 237, 0.45); }
+
+.light-theme .file-loaded {
+  background: rgba(16, 185, 129, 0.07);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+/* ── 16. SUGGESTIONS / TIPS ───────────────────────────────────── */
+.light-theme .suggestion-item {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(124, 58, 237, 0.10);
+}
+
+.light-theme .suggestion-item:hover {
+  border-color: rgba(124, 58, 237, 0.24);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.light-theme .suggestion-item p { color: rgba(15, 23, 42, 0.72); }
+
+.light-theme .skills-section-title.green { color: #059669; }
+.light-theme .skills-section-title.red   { color: #dc2626; }
+.light-theme .skills-count {
+  background: rgba(15, 23, 42, 0.05);
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.light-theme .tips-list li { color: rgba(15, 23, 42, 0.58); }
+.light-theme .tips-list li::before { color: #7c3aed; }
+
+/* ── 17. JOB MATCHES ──────────────────────────────────────────── */
+.light-theme .job-match-row {
+  border-radius: 18px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.light-theme .job-match-row:hover {
+  border-color: rgba(124, 58, 237, 0.22);
+  transform: translateX(6px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.light-theme .job-rank       { color: rgba(15, 23, 42, 0.40); }
+.light-theme .job-title-text { color: rgba(15, 23, 42, 0.88); }
+.light-theme .job-meta       { color: rgba(15, 23, 42, 0.45); }
+
+/* Best match card */
+.light-theme .best-match-title {
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.light-theme .best-match-label { color: rgba(15, 23, 42, 0.42); }
+.light-theme .best-match-sub   { color: rgba(15, 23, 42, 0.50); }
+
+/* ── 18. RESUME CARDS ─────────────────────────────────────────── */
+.light-theme .resume-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(124, 58, 237, 0.26);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.light-theme .resume-card-name { color: rgba(15, 23, 42, 0.88); }
+.light-theme .resume-card-meta { color: rgba(15, 23, 42, 0.45); }
+
+.light-theme .resume-card-add {
+  border-color: rgba(124, 58, 237, 0.20);
+  background: rgba(124, 58, 237, 0.02);
+  color: rgba(15, 23, 42, 0.40);
+  border-radius: 22px;
+}
+
+.light-theme .resume-card-add:hover {
+  border-color: rgba(124, 58, 237, 0.44);
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.05);
+}
+
+/* ── 19. PROFILE PAGE ─────────────────────────────────────────── */
+.light-theme .profile-avatar {
+  background: var(--grad-primary);
+  border-color: rgba(124, 58, 237, 0.28);
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.22);
+}
+
+.light-theme .profile-name  { color: rgba(15, 23, 42, 0.90); }
+.light-theme .profile-email { color: rgba(15, 23, 42, 0.50); }
+
+.light-theme .profile-stats {
+  border-top-color: rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .profile-stat-val   { color: rgba(15, 23, 42, 0.90); }
+.light-theme .profile-stat-label { color: rgba(15, 23, 42, 0.45); }
+
+/* ── 20. CAREER PATH ──────────────────────────────────────────── */
+.light-theme .career-step {
+  background: rgba(255, 255, 255, 0.70);
+  border-color: rgba(124, 58, 237, 0.12);
+}
+
+.light-theme .career-step-num {
+  background: var(--grad-primary);
+}
+
+.light-theme .career-arrow { color: rgba(124, 58, 237, 0.40); }
+
+/* ── 21. ADMIN TABS ───────────────────────────────────────────── */
+.light-theme .admin-tabs {
+  background: rgba(255, 255, 255, 0.60);
+  border-color: rgba(124, 58, 237, 0.12);
+}
+
+.light-theme .admin-tab { color: rgba(15, 23, 42, 0.48); }
+.light-theme .admin-tab:hover:not(.active) {
+  color: rgba(15, 23, 42, 0.80);
+  background: rgba(124, 58, 237, 0.05);
+}
+
+.light-theme .admin-tab.active {
+  background: linear-gradient(90deg, rgba(124,58,237,0.12), rgba(37,99,235,0.07));
+  color: #7c3aed;
+}
+
+/* ── 22. EMPTY STATE ──────────────────────────────────────────── */
+.light-theme .empty-state h3  { color: rgba(15, 23, 42, 0.80); }
+.light-theme .empty-state p   { color: rgba(15, 23, 42, 0.45); }
+.light-theme .results-placeholder { color: rgba(15, 23, 42, 0.40); }
+.light-theme .results-placeholder h3 { color: rgba(15, 23, 42, 0.72); }
+.light-theme .placeholder-icon { opacity: 0.30; }
+
+/* ── 23. FLASH / ALERTS ───────────────────────────────────────── */
+.light-theme .flash-success { background: rgba(16,185,129,0.10);  border-color: rgba(16,185,129,0.28); color: #059669; }
+.light-theme .flash-danger  { background: rgba(239,68,68,0.10);   border-color: rgba(239,68,68,0.26);  color: #dc2626; }
+.light-theme .flash-info    { background: rgba(124,58,237,0.09);  border-color: rgba(124,58,237,0.22); color: #7c3aed; }
+.light-theme .flash-warning { background: rgba(245,158,11,0.10);  border-color: rgba(245,158,11,0.24); color: #d97706; }
+
+.light-theme .alert-success { background: rgba(16,185,129,0.09);  border-color: rgba(16,185,129,0.22); color: #059669; }
+.light-theme .alert-danger  { background: rgba(239,68,68,0.08);   border-color: rgba(239,68,68,0.20);  color: #dc2626; }
+.light-theme .alert-info    { background: rgba(124,58,237,0.08);  border-color: rgba(124,58,237,0.18); color: #7c3aed; }
+
+/* ── 24. PAGINATION ───────────────────────────────────────────── */
+.light-theme .pagination {
+  border-top-color: rgba(15, 23, 42, 0.06);
+}
+
+.light-theme .pagination-ellipsis { color: rgba(15, 23, 42, 0.38); }
+
+/* ── 25. DOTS (card title decorators) ────────────────────────── */
+.light-theme .dot         { background: var(--grad-primary); }
+.light-theme .dot-purple  { background: var(--grad-purple); }
+.light-theme .dot-teal    { background: linear-gradient(135deg, #14b8a6, #0ea5e9); }
+.light-theme .dot-pink    { background: #ec4899; }
+
+/* ── 26. LOGOUT MODAL ─────────────────────────────────────────── */
+.light-theme .logout-box {
+  background: linear-gradient(145deg, #ffffff 0%, #f5f3ff 100%);
+  border-color: rgba(124, 58, 237, 0.10);
+  box-shadow: 0 32px 80px rgba(109, 40, 217, 0.14);
+}
+
+/* ── 27. EXTRA ANIMATIONS (light mode only) ───────────────────── */
+
+/* Skeleton shimmer adapted for light mode */
+.light-theme .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(124, 58, 237, 0.04) 25%,
+    rgba(124, 58, 237, 0.08) 50%,
+    rgba(124, 58, 237, 0.04) 75%
+  );
+}
+
+/* Card hover lift already defined above — also reinforce card-hover helper */
+.light-theme .card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* Spinner ring uses brand color */
+.light-theme .spinner {
+  border-color: rgba(124, 58, 237, 0.14);
+  border-top-color: #7c3aed;
+}
+
+/* Dot loader uses brand color */
+.light-theme .dot-loader span { background: #7c3aed; }
+
+/* ── 28. FILTER BAR ───────────────────────────────────────────── */
+.light-theme .filter-bar { }
+
+.light-theme .filter-select,
+.light-theme .history-filter select {
+  background: rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 14px;
+  color: rgba(15, 23, 42, 0.85);
+  color-scheme: light;
+}
+
+/* ── 29. TOPBAR PAGE TITLE fade-in ────────────────────────────── */
+.light-theme .topbar-title {
+  animation: ltTitleIn 0.4s ease both;
+}
+
+@keyframes ltTitleIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── 30. LINK COLORS ──────────────────────────────────────────── */
+.light-theme a { color: #7c3aed; }
+.light-theme a:hover { color: #6d28d9; }
+.light-theme .link-blue { color: #7c3aed; }
+
+/* ── 31. SCORE COLORS (results page) ─────────────────────────── */
+.light-theme .score-success { color: #059669; }
+.light-theme .score-info    { color: #7c3aed; }
+.light-theme .score-warning { color: #d97706; }
+.light-theme .score-danger  { color: #dc2626; }
+
+/* ── 32. TREND COLORS ─────────────────────────────────────────── */
+.light-theme .trend-up      { color: #059669; }
+.light-theme .trend-neutral { color: rgba(15, 23, 42, 0.42); }
+
+/* ── 33. NAV ITEM DANGER (sidebar logout) ─────────────────────── */
+.light-theme .nav-item-danger { color: rgba(220, 38, 38, 0.55); }
+.light-theme .nav-item-danger:hover {
+  background: rgba(239, 68, 68, 0.07) !important;
+  color: #dc2626 !important;
+}
+
+/* ── 34. FORM CHECK ───────────────────────────────────────────── */
+.light-theme .form-check { color: rgba(15, 23, 42, 0.55); }
+.light-theme .form-check input { accent-color: #7c3aed; }
+
+/* ── 35. PAGE-LEVEL FADE UP on main content ───────────────────── */
+.light-theme .page-content > * {
+  animation: ltContentIn 0.50s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.light-theme .page-content > *:nth-child(1) { animation-delay: 0.00s; }
+.light-theme .page-content > *:nth-child(2) { animation-delay: 0.06s; }
+.light-theme .page-content > *:nth-child(3) { animation-delay: 0.12s; }
+.light-theme .page-content > *:nth-child(4) { animation-delay: 0.18s; }
+.light-theme .page-content > *:nth-child(n+5) { animation-delay: 0.22s; }
+
+@keyframes ltContentIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

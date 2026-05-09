@@ -1,0 +1,83 @@
+/* ============================================================
+   auth.css – Login & Register pages (Inter font, neon glass)
+   ============================================================ */
+.auth-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 22px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #070B18 0%, #090e1f 50%, #0B1026 100%);
+  background-attachment: fixed;
+}
+
+.auth-wrapper { width: 100%; max-width: 440px; position: relative; z-index: 1; }
+
+.auth-card {
+  background: rgba(12,18,45,0.80);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 22px;
+  padding: 46px 38px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 34px;
+}
+
+.auth-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 27px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 9px;
+  letter-spacing: -0.5px;
+  color: rgba(255,255,255,0.94);
+}
+
+.auth-sub {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.40);
+  text-align: center;
+  margin-bottom: 30px;
+  line-height: 1.62;
+  font-family: 'Inter', sans-serif;
+}
+
+.auth-switch { text-align: center; font-size: 13px; color: rgba(255,255,255,0.38); margin-top: 22px; }
+.auth-switch a { color: #00D1FF; font-weight: 600; }
+
+.auth-divider { display: flex; align-items: center; gap: 14px; font-size: 12px; color: rgba(255,255,255,0.28); margin: 22px 0; }
+.auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.07); }
+
+.demo-hint {
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.30);
+  line-height: 1.75;
+  font-family: 'Inter', sans-serif;
+}
+.demo-hint code {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 11.5px;
+  background: rgba(255,255,255,0.06);
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: #00D1FF;
+}
+
+/* Light theme */
+.light-theme .auth-body { background: linear-gradient(135deg, #f0f4ff, #e8eeff, #dde5fb); }
+.light-theme .auth-card { background: rgba(255,255,255,0.88); border-color: rgba(15,23,42,0.09); }
+.light-theme .auth-title { color: rgba(15,23,42,0.92); }
+.light-theme .auth-sub, .light-theme .auth-switch, .light-theme .demo-hint { color: rgba(15,23,42,0.45); }
+.light-theme .auth-divider { color: rgba(15,23,42,0.30); }

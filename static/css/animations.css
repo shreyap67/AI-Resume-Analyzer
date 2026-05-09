@@ -1,0 +1,231 @@
+/* ============================================================
+   animations.css – Keyframes, transitions, micro-interactions
+   ============================================================ */
+
+/* ── Fade Up (cards, sections entering viewport) ────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeup {
+  animation: fadeUp 0.5s ease both;
+}
+
+/* ── Fade In (pure opacity, no movement) ────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fadein {
+  animation: fadeIn 0.4s ease both;
+}
+
+/* ── Slide In from Right ─────────────────────────────────────── */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.45s ease both;
+}
+
+/* ── Slide In from Left ──────────────────────────────────────── */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.45s ease both;
+}
+
+/* ── Scale In (modals, dropdowns) ───────────────────────────── */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.animate-scale {
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Pulse glow (AI badge, live indicators) ─────────────────── */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 209, 255, 0.3); }
+  50%       { opacity: 0.7; box-shadow: 0 0 0 6px rgba(0, 209, 255, 0); }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+/* ── Score arc draw animation ────────────────────────────────── */
+@keyframes drawArc {
+  from { stroke-dashoffset: 440; }
+  to   { stroke-dashoffset: var(--target-offset, 0); }
+}
+
+.animate-arc {
+  animation: drawArc 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ── Progress bar fill ───────────────────────────────────────── */
+@keyframes fillBar {
+  from { width: 0%; }
+  to   { width: var(--target-width, 100%); }
+}
+
+.animate-fill {
+  animation: fillBar 1s ease forwards;
+}
+
+/* ── Shimmer loading skeleton ────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+
+.skeleton-text  { height: 14px; margin-bottom: 8px; }
+.skeleton-title { height: 22px; width: 60%; margin-bottom: 12px; }
+.skeleton-card  { height: 120px; border-radius: 14px; }
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(0, 209, 255, 0.15);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner-sm { width: 16px; height: 16px; }
+.spinner-lg { width: 40px; height: 40px; border-width: 3px; }
+
+/* ── Bouncing dots (AI thinking indicator) ───────────────────── */
+@keyframes bounceDot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%            { transform: scale(1.0); opacity: 1; }
+}
+
+.dot-loader {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dot-loader span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: bounceDot 1.2s infinite ease-in-out;
+}
+
+.dot-loader span:nth-child(2) { animation-delay: 0.2s; }
+.dot-loader span:nth-child(3) { animation-delay: 0.4s; }
+
+/* ── Typewriter cursor blink ─────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: '|';
+  color: var(--blue);
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+/* ── Float (hero decorative elements) ───────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ── Neon flicker (logo on hover) ────────────────────────────── */
+@keyframes neonFlicker {
+  0%, 100% { opacity: 1; }
+  92%       { opacity: 0.95; }
+  93%       { opacity: 0.7; }
+  94%       { opacity: 1; }
+  96%       { opacity: 0.85; }
+  97%       { opacity: 1; }
+}
+
+.neon-flicker:hover {
+  animation: neonFlicker 3s infinite;
+}
+
+/* ── Gradient shift (background animation) ───────────────────── */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradientShift 6s ease infinite;
+}
+
+/* ── Card hover lift ─────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Tag enter animation ─────────────────────────────────────── */
+@keyframes tagPop {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.tag-animate {
+  animation: tagPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Stagger helper classes (use with animation-delay inline) ── */
+.delay-1 { animation-delay: 0.05s !important; }
+.delay-2 { animation-delay: 0.10s !important; }
+.delay-3 { animation-delay: 0.15s !important; }
+.delay-4 { animation-delay: 0.20s !important; }
+.delay-5 { animation-delay: 0.25s !important; }
+
+/* ── Reduced motion preference ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

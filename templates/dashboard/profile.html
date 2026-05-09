@@ -1,0 +1,137 @@
+{% extends "layout/base.html" %}
+{% block title %}Profile Settings{% endblock %}
+{% block page_title %}Profile Settings{% endblock %}
+
+{% block content %}
+
+<div class="profile-layout">
+
+  <!-- ── LEFT: Forms ──────────────────────────────────────────────────────── -->
+  <div class="profile-left">
+
+    <!-- Account info -->
+    <div class="card mb-4">
+      <div class="card-title mb-4"><span class="dot"></span>Account Information</div>
+
+      <form method="POST" action="{{ url_for('dashboard.profile') }}">
+        <input type="hidden" name="action" value="update_profile" />
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" name="name"
+                 value="{{ current_user.name }}" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" name="email"
+                 value="{{ current_user.email }}" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Type</label>
+          <input class="form-input" type="text"
+                 value="{{ 'Admin' if current_user.is_admin else 'Standard User' }}"
+                 disabled />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Member Since</label>
+          <input class="form-input" type="text"
+                 value="{{ current_user.created_at | datefmt }}" disabled />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </form>
+    </div>
+
+    <!-- Change password -->
+    <div class="card">
+      <div class="card-title mb-4"><span class="dot dot-purple"></span>Change Password</div>
+
+      <form method="POST" action="{{ url_for('dashboard.profile') }}">
+        <input type="hidden" name="action" value="change_password" />
+
+        <div class="form-group">
+          <label class="form-label">Current Password</label>
+          <input class="form-input" type="password" name="current_password"
+                 placeholder="••••••••" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input class="form-input" type="password" name="new_password"
+                 placeholder="Min. 6 characters" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm New Password</label>
+          <input class="form-input" type="password" name="confirm_password"
+                 placeholder="Repeat new password" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Password</button>
+      </form>
+    </div>
+
+  </div><!-- /profile-left -->
+
+  <!-- ── RIGHT: Overview ──────────────────────────────────────────────────── -->
+  <div class="profile-right">
+
+    <!-- Profile card -->
+    <div class="card mb-4 text-center">
+      <div class="profile-avatar">
+        {{ current_user.name[0].upper() }}
+      </div>
+      <div class="profile-name">{{ current_user.name }}</div>
+      <div class="profile-email text-muted">{{ current_user.email }}</div>
+
+      <div class="profile-chips">
+        {% if current_user.is_admin %}
+          <span class="chip chip-blue">Admin</span>
+        {% endif %}
+        <span class="chip chip-green">Verified</span>
+        <span class="chip chip-purple">Pro Plan</span>
+      </div>
+
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <div class="profile-stat-val text-blue">{{ current_user.total_analyses() }}</div>
+          <div class="profile-stat-label">Analyses</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val text-purple">{{ current_user.average_score() }}%</div>
+          <div class="profile-stat-label">Avg Score</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-val text-green">{{ current_user.highest_score() }}%</div>
+          <div class="profile-stat-label">Best Score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="card">
+      <div class="card-title mb-3" style="font-size:13px"><span class="dot dot-pink"></span>Quick Links</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-ghost" style="justify-content:flex-start">
+          📄 Analyse a Resume
+        </a>
+        <a href="{{ url_for('history.index') }}" class="btn btn-ghost" style="justify-content:flex-start">
+          🕓 View History
+        </a>
+        <a href="{{ url_for('analysis.job_matcher') }}" class="btn btn-ghost" style="justify-content:flex-start">
+          💼 Job Matcher
+        </a>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('admin.panel') }}" class="btn btn-ghost" style="justify-content:flex-start">
+          🛡️ Admin Panel
+        </a>
+        {% endif %}
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger" style="justify-content:flex-start">
+          🚪 Logout
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /profile-right -->
+
+</div><!-- /profile-layout -->
+
+{% endblock %}

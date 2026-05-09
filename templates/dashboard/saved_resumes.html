@@ -1,0 +1,70 @@
+{% extends "layout/base.html" %}
+{% block title %}Saved Resumes{% endblock %}
+{% block page_title %}Saved Resumes{% endblock %}
+
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+  <p class="text-muted" style="font-size:13px">{{ resumes|length }} resume(s) uploaded</p>
+</div>
+
+{% if resumes %}
+<div class="resumes-grid">
+  {% for resume in resumes %}
+  <div class="resume-card animate-fadein" style="animation-delay:{{ loop.index0 * 0.07 }}s">
+    <div class="resume-card-icon">📄</div>
+    <div class="resume-card-name fw-500">{{ resume.original_name }}</div>
+    <div class="resume-card-meta text-muted">
+      {{ resume.created_at | datefmt }} · {{ resume.file_size_kb() }}
+    </div>
+
+    <!-- Latest analysis score — uses .first() on the dynamic query (ordered newest-first by model) -->
+    {% set latest = resume.analyses.first() %}
+    {% if latest %}
+      <div class="resume-card-score">
+        <span class="badge badge-{{ latest.ats_score | score_color }}">
+          {{ latest.job_role_title }} – {{ latest.ats_score | round(0) | int }}%
+        </span>
+      </div>
+    {% else %}
+      <div class="resume-card-score">
+        <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--muted)">Not analysed</span>
+      </div>
+    {% endif %}
+
+    <div class="resume-card-actions">
+      <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-sm btn-primary"
+         title="Analyse this resume">Analyse</a>
+      <form method="POST" action="{{ url_for('resume.save_resume', resume_id=resume.id) }}"
+            style="display:inline">
+        <button type="submit" class="btn btn-sm btn-ghost"
+                title="{{ 'Unsave' if resume.is_saved else 'Save' }}">
+          {{ '★ Saved' if resume.is_saved else '☆ Save' }}
+        </button>
+      </form>
+      <form method="POST" action="{{ url_for('resume.delete_resume', resume_id=resume.id) }}"
+            onsubmit="return confirm('Delete this resume and all its analyses?')"
+            style="display:inline">
+        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+
+  <!-- Upload new card -->
+  <a href="{{ url_for('analysis.analyzer_page') }}" class="resume-card resume-card-add">
+    <div class="resume-card-icon" style="opacity:.4;font-size:28px">+</div>
+    <div class="text-muted" style="font-size:13px">Upload New Resume</div>
+  </a>
+</div>
+
+{% else %}
+<div class="card empty-state" style="text-align:center;padding:60px 24px">
+  <div class="empty-icon">📁</div>
+  <h3>No Resumes Uploaded</h3>
+  <p class="text-muted">Upload your first resume to get started.</p>
+  <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-primary">Upload Resume</a>
+</div>
+{% endif %}
+
+{% endblock %}

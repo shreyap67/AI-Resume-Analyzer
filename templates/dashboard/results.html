@@ -1,0 +1,170 @@
+{% extends "layout/base.html" %}
+{% block title %}Analysis Result – {{ analysis.job_role_title }}{% endblock %}
+{% block page_title %}Analysis Result{% endblock %}
+
+{% block content %}
+
+<div class="result-layout">
+
+  <!-- ── LEFT column ─────────────────────────────────────────────────────── -->
+  <div class="result-left">
+
+    <!-- ATS Score card -->
+    <div class="card card-glow mb-4 text-center">
+      <div class="result-meta">
+        <span class="badge badge-{{ analysis.ats_score | score_color }}">
+          {{ analysis.ats_score | score_label }}
+        </span>
+        <span class="text-muted" style="font-size:12px">{{ analysis.created_at | datefmt }}</span>
+      </div>
+
+      <h2 class="card-title" style="margin:12px 0 4px">{{ analysis.job_role_title }}</h2>
+      <p class="text-muted" style="font-size:13px">
+        {% if analysis.resume %}{{ analysis.resume.original_name }}{% endif %}
+      </p>
+
+      <!-- Circular score display -->
+      <div class="score-circle-wrap" style="margin:20px 0">
+        <div class="score-circle">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="66" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+            {% set dash = (analysis.ats_score / 100) * 415 %}
+            <circle cx="80" cy="80" r="66" fill="none"
+                    stroke="url(#scoreGrad2)" stroke-width="12"
+                    stroke-dasharray="{{ dash }} 415"
+                    stroke-linecap="round"
+                    transform="rotate(-90 80 80)"/>
+            <defs>
+              <linearGradient id="scoreGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#00D1FF"/>
+                <stop offset="100%" stop-color="#7C3AED"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="score-label-wrap">
+            <span class="score-big">{{ analysis.ats_score | round(1) }}%</span>
+            <span class="score-sublabel">MATCH</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini stats -->
+      <div class="score-stats">
+        <div class="score-stat">
+          <div class="score-stat-val text-green">{{ analysis.matched_skills | length }}</div>
+          <div class="score-stat-label">Matched</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-stat-val text-red">{{ analysis.missing_skills | length }}</div>
+          <div class="score-stat-label">Missing</div>
+        </div>
+        <div class="score-stat">
+          <div class="score-stat-val text-blue">{{ analysis.extracted_skills | length }}</div>
+          <div class="score-stat-label">Extracted</div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="btn-row btn-row-center">
+        <a href="{{ url_for('analysis.download_report', result_id=analysis.id) }}"
+           class="btn btn-primary">📥 Download Report</a>
+        <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-ghost">
+          ← New Analysis
+        </a>
+      </div>
+    </div>
+
+    <!-- Skills match progress bar -->
+    <div class="card mb-4">
+      <div class="card-title mb-3"><span class="dot"></span>Skill Match Breakdown</div>
+      {% set total = analysis.matched_skills|length + analysis.missing_skills|length %}
+      {% if total > 0 %}
+        {% set pct = ((analysis.matched_skills|length) / total * 100) | round(0) %}
+      {% else %}
+        {% set pct = 0 %}
+      {% endif %}
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+        <span class="text-green">Matched: {{ analysis.matched_skills|length }}</span>
+        <span class="text-red">Missing: {{ analysis.missing_skills|length }}</span>
+      </div>
+      <div class="prog-bar prog-bar-lg">
+        <div class="prog-fill prog-fill-green" style="width:{{ pct }}%"></div>
+      </div>
+      <p class="text-muted" style="font-size:12px;margin-top:6px;text-align:right">
+        {{ pct }}% of required skills matched
+      </p>
+    </div>
+
+  </div><!-- /result-left -->
+
+  <!-- ── RIGHT column ────────────────────────────────────────────────────── -->
+  <div class="result-right">
+
+    <!-- Extracted skills -->
+    <div class="card mb-4">
+      <div class="skills-section-title green mb-2">
+        ✅ Extracted Skills
+        <span class="skills-count">{{ analysis.extracted_skills | length }} found</span>
+      </div>
+      <div class="tags">
+        {% for skill in analysis.extracted_skills %}
+          <span class="tag tag-green">{{ skill }}</span>
+        {% else %}
+          <span class="text-muted">No skills extracted</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Missing skills -->
+    <div class="card mb-4">
+      <div class="skills-section-title red mb-2">
+        ❌ Missing Skills
+        <span class="skills-count">{{ analysis.missing_skills | length }} gaps</span>
+      </div>
+      <div class="tags">
+        {% for skill in analysis.missing_skills %}
+          <span class="tag tag-red">{{ skill }}</span>
+        {% else %}
+          <span class="text-muted" style="font-size:13px">
+            🎉 You match all required skills!
+          </span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- AI Suggestions -->
+    <div class="card">
+      <div class="card-title mb-3"><span class="dot"></span>AI Improvement Suggestions</div>
+      <div class="suggestions-list">
+        {% set suggestion_icons = ['💡','🎓','📈','🔑','🚀'] %}
+        {% for suggestion in analysis.suggestions %}
+          <div class="suggestion-item">
+            <span class="suggestion-icon">{{ suggestion_icons[loop.index0 % 5] }}</span>
+            <p>{{ suggestion }}</p>
+          </div>
+        {% else %}
+          <p class="text-muted">No suggestions – great match!</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Navigation links -->
+    <div class="card card-subtle mt-4">
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="{{ url_for('history.index') }}" class="btn btn-ghost btn-sm">
+          🕓 View History
+        </a>
+        <a href="{{ url_for('analysis.job_matcher') }}" class="btn btn-ghost btn-sm">
+          💼 Job Matcher
+        </a>
+        <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-primary btn-sm">
+          + New Analysis
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /result-right -->
+
+</div><!-- /result-layout -->
+
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends "layout/base.html" %}
+{% block title %}Job Matcher{% endblock %}
+{% block page_title %}Job Matcher{% endblock %}
+
+{% block content %}
+
+{% if not latest_resume %}
+<div class="card empty-state" style="max-width:520px;margin:40px auto;text-align:center">
+  <div class="empty-icon">💼</div>
+  <h3>No Resume Found</h3>
+  <p class="text-muted">Upload a resume first to see how you match against all job roles.</p>
+  <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-primary">Upload Resume</a>
+</div>
+
+{% else %}
+
+<!-- ── Custom role analyser card ──────────────────────────────────────────── -->
+<div class="card mb-4 animate-fadeup" style="overflow:visible">
+  <div class="card-header">
+    <div class="card-title"><span class="dot dot-purple"></span>Analyse for a Specific Role</div>
+  </div>
+  <p class="text-muted mb-3" style="font-size:13px">
+    Select a stream, choose a role or enter your own — then run a full ATS analysis.
+  </p>
+
+  <form method="POST" action="{{ url_for('analysis.run_custom_match') }}">
+    <input type="hidden" name="resume_id" value="{{ latest_resume.id }}">
+
+    <div class="grid-2" style="gap:16px;align-items:end">
+
+      <!-- Stream selector -->
+      <div class="form-group" style="margin-bottom:0;overflow:visible">
+        <label class="form-label"
+               style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+          Select Stream
+        </label>
+        <div style="position:relative;overflow:visible">
+          <select class="form-select" id="jm_streamSelect" onchange="jmOnStreamChange(this.value)"
+                  style="position:relative;z-index:300">
+            <option value="">— Select a stream —</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Civil">Civil</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Medicine">Medicine</option>
+            <option value="Law">Law</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Job role selector — populated by stream -->
+      <div class="form-group" style="margin-bottom:0;overflow:visible">
+        <label class="form-label"
+               style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+          Select Job Role
+        </label>
+        <div style="position:relative;overflow:visible">
+          <select class="form-select" id="job_role" name="job_role" onchange="clearJmCustomRole()"
+                  style="position:relative;z-index:290">
+            <option value="">— Select a stream first —</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Custom role -->
+    <div class="form-group" style="margin-top:14px;margin-bottom:0">
+      <label class="form-label"
+             style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+        Or Enter Custom Role
+      </label>
+      <input type="text" class="form-input dark-input" id="custom_role" name="custom_role"
+             placeholder="e.g. React Developer, Data Analyst"
+             oninput="clearJmDropdown()" style="margin-top:8px" />
+    </div>
+
+    <div style="margin-top:16px;display:flex;align-items:center;gap:12px">
+      <button type="submit" class="btn btn-primary">
+        🎯 Run ATS Analysis
+      </button>
+      <span class="text-muted" style="font-size:12px">
+        Based on: <strong>{{ latest_resume.original_name }}</strong>
+        · <a href="{{ url_for('analysis.analyzer_page') }}" class="link-blue">Change resume</a>
+      </span>
+    </div>
+  </form>
+</div>
+
+<!-- ── Best match banner ──────────────────────────────────────────────────── -->
+{% if best_match %}
+<div class="card card-gradient mb-4 animate-fadeup" style="animation-delay:.05s">
+  <div class="best-match-inner">
+    <div class="best-match-left">
+      <div class="best-match-trophy">🏆</div>
+      <div>
+        <div class="best-match-label">Best Matching Role</div>
+        <div class="best-match-title">{{ best_match.job_role_title }}</div>
+        <div class="best-match-sub">
+          {{ best_match.matched }} of {{ best_match.required }} required skills matched
+        </div>
+      </div>
+    </div>
+    <div class="best-match-score">
+      <div class="big-score text-blue">{{ best_match.ats_score | round(0) | int }}%</div>
+      <div class="text-muted" style="font-size:12px">Match Score</div>
+    </div>
+    <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-primary">
+      Analyse for This Role →
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── All matches list ───────────────────────────────────────────────────── -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+  <div class="card-title"><span class="dot"></span>All Job Role Matches</div>
+</div>
+
+{% if job_matches %}
+<div class="job-matches-list">
+  {% for match in job_matches %}
+  <div class="job-match-row animate-fadein" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+
+    <div class="job-rank text-muted">#{{ loop.index }}</div>
+
+    <div class="job-icon-wrap
+      {% if match.ats_score >= 85 %}blue-bg
+      {% elif match.ats_score >= 70 %}purple-bg
+      {% elif match.ats_score >= 55 %}pink-bg
+      {% else %}gray-bg{% endif %}">
+      {{ ['⚡','🐍','⚛️','📊','☁️','🔧','🤖','📱','🎨','🔐'][loop.index0 % 10] }}
+    </div>
+
+    <div class="job-info">
+      <div class="job-title-text">{{ match.job_role_title }}</div>
+      <div class="job-meta text-muted">
+        {{ match.matched }} / {{ match.required }} skills matched
+        {% if match.stream %}<span class="badge" style="margin-left:6px;font-size:10px">{{ match.stream }}</span>{% endif %}
+      </div>
+    </div>
+
+    <div class="job-progress-wrap">
+      <div class="prog-bar">
+        <div class="prog-fill
+          {% if match.ats_score >= 85 %}prog-fill-blue
+          {% elif match.ats_score >= 70 %}prog-fill-purple
+          {% elif match.ats_score >= 55 %}prog-fill-pink
+          {% else %}prog-fill-gray{% endif %}"
+          style="width:{{ match.ats_score | round(0) | int }}%">
+        </div>
+      </div>
+    </div>
+
+    <div class="job-score-val
+      {% if match.ats_score >= 85 %}text-blue
+      {% elif match.ats_score >= 70 %}text-purple
+      {% elif match.ats_score >= 55 %}text-pink
+      {% else %}text-muted{% endif %}">
+      {{ match.ats_score | round(0) | int }}%
+    </div>
+
+    <div class="job-actions">
+      <span class="badge badge-{{ match.ats_score | score_color }}">
+        {{ match.ats_score | score_label }}
+      </span>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="card empty-state" style="text-align:center">
+  <div class="empty-icon">💼</div>
+  <h3>No job roles configured</h3>
+  <p class="text-muted">An admin needs to add job roles before matching can occur.</p>
+  {% if current_user.is_admin %}
+    <a href="{{ url_for('admin.panel') }}" class="btn btn-primary">Go to Admin Panel</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if job_matches and job_matches|length >= 2 %}
+<div class="card mt-4 animate-fadein" style="animation-delay:.4s">
+  <div class="card-title mb-3"><span class="dot dot-purple"></span>Recommended Career Path</div>
+  <div class="career-path">
+    {% for match in job_matches[:3] %}
+      <div class="career-step">
+        <div class="career-step-num">{{ loop.index }}</div>
+        <div>
+          <div class="fw-500">{{ match.job_role_title }}</div>
+          <div class="text-muted" style="font-size:12px">{{ match.ats_score | round(0) | int }}% match</div>
+        </div>
+      </div>
+      {% if not loop.last %}<div class="career-arrow">→</div>{% endif %}
+    {% endfor %}
+  </div>
+  <p class="text-muted" style="font-size:12px;margin-top:12px">
+    Based on your current skills, we recommend targeting roles in this order.
+  </p>
+</div>
+{% endif %}
+
+{% endif %}<!-- /if latest_resume -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Stream → Job Role mapping (Job Matcher page)
+var JM_STREAM_ROLES = {
+  "Computer Science": [
+    "Python Developer","Full Stack Developer","Frontend Developer",
+    "Backend Developer","Database Administrator","DevOps Engineer",
+    "Mobile App Developer","Cybersecurity Analyst","Cloud Architect","QA Engineer"
+  ],
+  "Civil": [
+    "Structural Engineer","Site Engineer","Land Surveyor",
+    "Construction Manager","Environmental Engineer","Geotechnical Engineer",
+    "Transportation Engineer","Urban Planner"
+  ],
+  "Commerce": [
+    "Accountant","Finance Analyst","Auditor","Tax Consultant",
+    "Banking Officer","Investment Analyst","Financial Controller",
+    "Cost Accountant","Management Consultant"
+  ],
+  "Mechanical": [
+    "Mechanical Design Engineer","Manufacturing Engineer","Automotive Engineer",
+    "HVAC Engineer","Quality Control Engineer","Production Engineer",
+    "Maintenance Engineer","Robotics Engineer"
+  ],
+  "Electrical": [
+    "Power Systems Engineer","Embedded Systems Engineer","IoT Engineer",
+    "Control Systems Engineer","Electronics Engineer","VLSI Design Engineer",
+    "Instrumentation Engineer"
+  ],
+  "Data Science": [
+    "Data Analyst","Data Scientist","Machine Learning Engineer",
+    "Business Intelligence Analyst","Data Engineer","AI Research Scientist",
+    "NLP Engineer","Computer Vision Engineer"
+  ],
+  "Marketing": [
+    "Digital Marketing Specialist","Content Strategist","SEO Specialist",
+    "Brand Manager","Social Media Manager","Marketing Analyst",
+    "Growth Hacker","Email Marketing Specialist"
+  ],
+  "Medicine": [
+    "General Physician","Surgeon","Clinical Researcher",
+    "Pharmacist","Medical Lab Technician","Radiologist","Cardiologist"
+  ],
+  "Law": [
+    "Corporate Lawyer","Criminal Defense Attorney","Legal Consultant",
+    "Intellectual Property Attorney","Family Law Attorney","Paralegal"
+  ]
+};
+
+function jmOnStreamChange(streamValue) {
+  var select = document.getElementById('job_role');
+  if (!select) return;
+  select.innerHTML = '<option value="">— Select a job role —</option>';
+  if (!streamValue || !JM_STREAM_ROLES[streamValue]) return;
+  JM_STREAM_ROLES[streamValue].forEach(function(title) {
+    var opt = document.createElement('option');
+    opt.value = title;
+    opt.textContent = title;
+    select.appendChild(opt);
+  });
+}
+
+function clearJmCustomRole() {
+  var el = document.getElementById('custom_role');
+  if (el) el.value = '';
+}
+
+function clearJmDropdown() {
+  var el = document.getElementById('job_role');
+  if (el) el.value = '';
+}
+</script>
+{% endblock %}

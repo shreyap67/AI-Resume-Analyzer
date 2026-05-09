@@ -1,0 +1,38 @@
+{% extends "errors/base_error.html" %}
+
+{% block error_title %}413 – File Too Large{% endblock %}
+
+{% block code_gradient %}linear-gradient(135deg, #F59E0B, #EF4444){% endblock %}
+
+{% block error_emoji %}📦{% endblock %}
+
+{% block error_code %}413{% endblock %}
+
+{% block error_heading %}File Too Large{% endblock %}
+
+{% block error_body %}
+  Your resume exceeds the <strong style="color:rgba(255,255,255,0.7)">10 MB upload limit</strong>.
+  Please compress your PDF and try again. Most resumes should be well under 1 MB.
+  <br><br>
+  <span style="font-size:13px">
+    💡 Tip: Use <strong style="color:rgba(255,255,255,0.6)">Smallpdf</strong> or
+    <strong style="color:rgba(255,255,255,0.6)">ILovePDF</strong> to compress your PDF for free.
+  </span>
+{% endblock %}
+
+{% block error_actions %}
+  {% if current_user and current_user.is_authenticated %}
+    <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-primary">
+      ← Try Again
+    </a>
+    <a href="{{ url_for('dashboard.home') }}" class="btn btn-ghost">
+      Dashboard
+    </a>
+  {% else %}
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+      ← Go Home
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block error_code_small %}HTTP 413 &nbsp;·&nbsp;{% endblock %}

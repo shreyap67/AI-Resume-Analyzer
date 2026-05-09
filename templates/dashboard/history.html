@@ -1,0 +1,150 @@
+{% extends "layout/base.html" %}
+{% block title %}Analysis History{% endblock %}
+{% block page_title %}Analysis History{% endblock %}
+
+{% block content %}
+
+<!-- ── Filter bar ─────────────────────────────────────────────────────────── -->
+<div class="filter-bar mb-4">
+  <form method="GET" action="{{ url_for('history.index') }}" class="filter-form">
+    <select class="form-select" name="role" onchange="this.form.submit()"
+            style="width:auto;min-width:200px">
+      <option value="">All Job Roles</option>
+      {% for role_opt in role_options %}
+        <option value="{{ role_opt }}" {% if role_filter == role_opt %}selected{% endif %}>
+          {{ role_opt }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+
+  <div class="filter-right">
+    <span class="text-muted" style="font-size:13px">
+      {{ pagination.total }} record{% if pagination.total != 1 %}s{% endif %}
+    </span>
+  </div>
+</div>
+
+<!-- ── History table ──────────────────────────────────────────────────────── -->
+<div class="card">
+  {% if analyses %}
+  <div class="table-wrap">
+    <table class="data-table" id="historyTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Resume</th>
+          <th>Job Role</th>
+          <th>Score</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for analysis in analyses %}
+        <tr id="row-{{ analysis.id }}">
+          <td class="text-muted">{{ loop.index + (pagination.page - 1) * 10 }}</td>
+          <td class="fw-500">
+            {% if analysis.resume %}{{ analysis.resume.original_name }}{% else %}Deleted{% endif %}
+          </td>
+          <td>{{ analysis.job_role_title }}</td>
+          <td>
+            <span class="score-text score-{{ analysis.ats_score | score_color }}">
+              {{ analysis.ats_score | round(1) }}%
+            </span>
+          </td>
+          <td>
+            <span class="badge badge-{{ analysis.ats_score | score_color }}">
+              {{ analysis.ats_score | score_label }}
+            </span>
+          </td>
+          <td class="text-muted">{{ analysis.created_at | datefmt }}</td>
+          <td>
+            <div style="display:flex;gap:6px">
+              <a href="{{ url_for('analysis.result', result_id=analysis.id) }}"
+                 class="btn btn-sm btn-ghost">View</a>
+              <a href="{{ url_for('analysis.download_report', result_id=analysis.id) }}"
+                 class="btn btn-sm btn-ghost" title="Download PDF">📥</a>
+              <button class="btn btn-sm btn-danger"
+                      onclick="deleteRow({{ analysis.id }}, '{{ url_for('history.delete', result_id=analysis.id) }}')">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if pagination.pages > 1 %}
+  <div class="pagination">
+    {% if pagination.has_prev %}
+      <a href="{{ url_for('history.index', page=pagination.prev_num, role=role_filter) }}"
+         class="btn btn-sm btn-ghost">← Prev</a>
+    {% endif %}
+
+    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if page_num %}
+        <a href="{{ url_for('history.index', page=page_num, role=role_filter) }}"
+           class="btn btn-sm {% if page_num == pagination.page %}btn-primary{% else %}btn-ghost{% endif %}">
+          {{ page_num }}
+        </a>
+      {% else %}
+        <span class="pagination-ellipsis">…</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+      <a href="{{ url_for('history.index', page=pagination.next_num, role=role_filter) }}"
+         class="btn btn-sm btn-ghost">Next →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="empty-state" style="text-align:center;padding:48px">
+    <div class="empty-icon">🕓</div>
+    <h3>No analysis history yet</h3>
+    <p class="text-muted">
+      {% if role_filter %}
+        No records found for "{{ role_filter }}".
+        <a href="{{ url_for('history.index') }}">Clear filter</a>
+      {% else %}
+        Run your first resume analysis to see it here.
+      {% endif %}
+    </p>
+    <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-primary">
+      Analyse a Resume
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function deleteRow(id, url) {
+    if (!confirm('Delete this analysis record?')) return;
+    fetch(url, {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest',
+                 'Content-Type': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        const row = document.getElementById('row-' + id);
+        row.style.opacity = '0';
+        row.style.transition = 'opacity 0.3s';
+        setTimeout(() => row.remove(), 300);
+      }
+    })
+    .catch(() => { location.reload(); });
+  }
+</script>
+{% endblock %}

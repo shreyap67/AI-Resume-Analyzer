@@ -1,0 +1,305 @@
+{% extends "layout/base.html" %}
+{% block title %}Admin Panel{% endblock %}
+{% block page_title %}Admin Panel{% endblock %}
+
+{% block content %}
+
+<!-- ── Platform stats ─────────────────────────────────────────────────────── -->
+{% if stats %}
+<div class="stats-grid mb-4">
+  <div class="stat-card">
+    <div class="stat-icon blue-bg">👥</div>
+    <div class="stat-value text-blue">{{ stats.total_users }}</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple-bg">📊</div>
+    <div class="stat-value text-purple">{{ stats.total_analyses }}</div>
+    <div class="stat-label">Total Analyses</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon pink-bg">📄</div>
+    <div class="stat-value text-pink">{{ stats.total_resumes }}</div>
+    <div class="stat-label">Resumes Uploaded</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green-bg">💼</div>
+    <div class="stat-value text-green">{{ stats.total_roles }}</div>
+    <div class="stat-label">Job Roles</div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ── Tab navigation ─────────────────────────────────────────────────────── -->
+<div class="admin-tabs mb-4">
+  <button class="admin-tab {% if not view or view == 'roles' %}active{% endif %}"
+          onclick="showTab('roles')">💼 Job Roles</button>
+  <button class="admin-tab {% if view == 'skills' %}active{% endif %}"
+          onclick="showTab('skills')">🏷️ Skills</button>
+  <button class="admin-tab {% if view == 'users' %}active{% endif %}"
+          onclick="showTab('users')">👥 Users</button>
+  <button class="admin-tab {% if view == 'recent' %}active{% endif %}"
+          onclick="showTab('recent')">📋 Recent Activity</button>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB: JOB ROLES
+════════════════════════════════════════ -->
+<div id="tab-roles" class="admin-tab-content {% if not view or view == 'roles' %}active{% endif %}">
+  <div class="admin-split">
+
+    <!-- Add role form -->
+    <div class="card">
+      <div class="card-title mb-3"><span class="dot"></span>Add New Job Role</div>
+      <form method="POST" action="{{ url_for('admin.add_role') }}">
+        <div class="form-group">
+          <label class="form-label">Role Title</label>
+          <input class="form-input" type="text" name="title"
+                 placeholder="e.g. ML Engineer" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-input" name="description" rows="2"
+                    placeholder="Brief description of the role"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Experience Level</label>
+          <select class="form-select" name="experience_level">
+            <option value="junior">Junior</option>
+            <option value="mid" selected>Mid</option>
+            <option value="senior">Senior</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Required Skills (comma-separated)</label>
+          <textarea class="form-input" name="skills" rows="3"
+                    placeholder="python, tensorflow, docker, kubernetes"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Add Job Role</button>
+      </form>
+    </div>
+
+    <!-- Existing roles list -->
+    <div class="card">
+      <div class="card-title mb-3"><span class="dot dot-purple"></span>Manage Job Roles</div>
+      {% if roles is defined and roles %}
+        {% set role_list = roles %}
+      {% else %}
+        {% set role_list = [] %}
+      {% endif %}
+
+      <!-- We'll load roles via import in template context via the route -->
+      <div id="rolesList">
+        <!-- Roles injected server-side via admin.panel route (stats + recent_analyses + roles) -->
+        <p class="text-muted" style="font-size:13px">
+          Job roles are shown below. Refresh or navigate to see the current list.
+        </p>
+      </div>
+
+      <!-- Display roles passed to template -->
+      {% if recent_analyses is defined %}
+        {% set all_roles_displayed = namespace(done=false) %}
+        {# Use admin panel route which passes stats, so query roles inline #}
+      {% endif %}
+
+      <!-- Roles table (populated when roles variable is available) -->
+      {% if roles is defined %}
+      <div class="table-wrap" style="margin-top:12px">
+        <table class="data-table">
+          <thead>
+            <tr><th>Title</th><th>Level</th><th>Skills</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for role in roles %}
+            <tr id="role-row-{{ role.id }}">
+              <td class="fw-500">{{ role.title }}</td>
+              <td><span class="badge badge-info">{{ role.experience_level }}</span></td>
+              <td class="text-muted">{{ role.required_skills | length }} skills</td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <a href="{{ url_for('admin.edit_role', role_id=role.id) }}"
+                     class="btn btn-sm btn-ghost">Edit</a>
+                  <form method="POST"
+                        action="{{ url_for('admin.delete_role', role_id=role.id) }}"
+                        onsubmit="return confirm('Delete this role?')" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <!-- Load from route by navigating to the roles sub-view -->
+      <p style="font-size:13px;margin-top:8px">
+        <a href="{{ url_for('admin.roles') }}" class="link-blue">View all job roles →</a>
+      </p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB: SKILLS
+════════════════════════════════════════ -->
+<div id="tab-skills" class="admin-tab-content {% if view == 'skills' %}active{% endif %}">
+  <div class="admin-split">
+
+    <div class="card">
+      <div class="card-title mb-3"><span class="dot"></span>Add New Skill</div>
+      <form method="POST" action="{{ url_for('admin.add_skill') }}">
+        <div class="form-group">
+          <label class="form-label">Skill Name</label>
+          <input class="form-input" type="text" name="name"
+                 placeholder="e.g. graphql" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" name="category">
+            <option value="backend">Backend</option>
+            <option value="frontend">Frontend</option>
+            <option value="data">Data / ML</option>
+            <option value="cloud">Cloud / DevOps</option>
+            <option value="tools">Tools</option>
+            <option value="soft">Soft Skills</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Add Skill</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title mb-3"><span class="dot dot-purple"></span>All Skills</div>
+      <p style="font-size:13px">
+        <a href="{{ url_for('admin.skills') }}" class="link-blue">View all {{ stats.total_skills if stats else '' }} skills →</a>
+      </p>
+      {% if skills is defined %}
+      <div class="table-wrap" style="margin-top:12px;max-height:400px;overflow-y:auto">
+        <table class="data-table">
+          <thead><tr><th>Skill</th><th>Category</th><th>Actions</th></tr></thead>
+          <tbody>
+            {% for skill in skills %}
+            <tr>
+              <td class="fw-500">{{ skill.name }}</td>
+              <td><span class="badge badge-info">{{ skill.category }}</span></td>
+              <td>
+                <form method="POST"
+                      action="{{ url_for('admin.delete_skill', skill_id=skill.id) }}"
+                      onsubmit="return confirm('Delete skill {{ skill.name }}?')"
+                      style="display:inline">
+                  <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB: USERS
+════════════════════════════════════════ -->
+<div id="tab-users" class="admin-tab-content {% if view == 'users' %}active{% endif %}">
+  <div class="card">
+    <div class="card-title mb-3"><span class="dot"></span>All Users</div>
+    <p style="font-size:13px;margin-bottom:12px">
+      <a href="{{ url_for('admin.users') }}" class="link-blue">View full user management →</a>
+    </p>
+    {% if recent_users %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for user in recent_users %}
+          <tr>
+            <td class="fw-500">{{ user.name }}</td>
+            <td class="text-muted">{{ user.email }}</td>
+            <td>
+              {% if user.is_admin %}
+                <span class="badge badge-warning">Admin</span>
+              {% else %}
+                <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--muted)">User</span>
+              {% endif %}
+            </td>
+            <td class="text-muted">{{ user.created_at | datefmt }}</td>
+            <td>
+              <form method="POST"
+                    action="{{ url_for('admin.toggle_admin', user_id=user.id) }}"
+                    style="display:inline">
+                <button type="submit" class="btn btn-sm btn-ghost"
+                        {% if user.id == current_user.id %}disabled title="Cannot change your own status"{% endif %}>
+                  {{ 'Demote' if user.is_admin else 'Make Admin' }}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-muted">No users found.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB: RECENT ACTIVITY
+════════════════════════════════════════ -->
+<div id="tab-recent" class="admin-tab-content {% if view == 'recent' %}active{% endif %}">
+  <div class="card">
+    <div class="card-title mb-3"><span class="dot dot-pink"></span>Recent Platform Activity</div>
+    {% if recent_analyses %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>User</th><th>Job Role</th><th>Score</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for a in recent_analyses %}
+          <tr>
+            <td class="fw-500">
+              {% if a.author %}{{ a.author.name }}{% else %}Deleted User{% endif %}
+            </td>
+            <td>{{ a.job_role_title }}</td>
+            <td>
+              <span class="score-text score-{{ a.ats_score | score_color }}">
+                {{ a.ats_score | round(1) }}%
+              </span>
+            </td>
+            <td class="text-muted">{{ a.created_at | datefmt }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="empty-state" style="text-align:center;padding:32px">
+        <div class="empty-icon">📋</div>
+        <p class="text-muted">No analyses yet platform-wide.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+{% endblock %}

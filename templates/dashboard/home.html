@@ -1,0 +1,131 @@
+{% extends "layout/base.html" %}
+{% block title %}Dashboard Home{% endblock %}
+{% block page_title %}Dashboard Home{% endblock %}
+
+{% block content %}
+<!-- ── Stats row ────────────────────────────────────────────── -->
+<div class="stats-grid">
+  <div class="stat-card animate-fadeup" style="animation-delay:.05s">
+    <div class="stat-icon blue-bg">📊</div>
+    <div class="stat-value text-blue">{{ total_analyses }}</div>
+    <div class="stat-label">Total Resumes Analysed</div>
+    <div class="stat-trend trend-up">↑ Active this month</div>
+  </div>
+  <div class="stat-card animate-fadeup" style="animation-delay:.10s">
+    <div class="stat-icon purple-bg">⚡</div>
+    <div class="stat-value text-purple">{{ avg_score }}%</div>
+    <div class="stat-label">Average ATS Score</div>
+    <div class="stat-trend trend-up">↑ Keep improving!</div>
+  </div>
+  <div class="stat-card animate-fadeup" style="animation-delay:.15s">
+    <div class="stat-icon pink-bg">🏆</div>
+    <div class="stat-value text-pink">{{ highest_score }}%</div>
+    <div class="stat-label">Highest Score Achieved</div>
+    <div class="stat-trend trend-neutral">Personal best</div>
+  </div>
+  <div class="stat-card animate-fadeup" style="animation-delay:.20s">
+    <div class="stat-icon green-bg">📅</div>
+    <div class="stat-value stat-value-sm text-green">
+      {% if last_date %}{{ last_date | datefmt }}{% else %}–{% endif %}
+    </div>
+    <div class="stat-label">Last Analysis Date</div>
+    <div class="stat-trend trend-neutral">
+      {% if not last_date %}Upload your first resume{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ── Charts ───────────────────────────────────────────────── -->
+<div class="grid-2 mb-4">
+  <div class="card animate-fadein" style="animation-delay:.25s">
+    <div class="card-header">
+      <div class="card-title"><span class="dot"></span>ATS Score Over Time</div>
+      <a href="{{ url_for('history.index') }}" class="card-link">View All →</a>
+    </div>
+    <div class="chart-wrap" style="height:210px">
+      {% if chart_labels %}
+        <canvas id="lineChart"></canvas>
+      {% else %}
+        <div class="empty-chart">
+          <div style="font-size:36px;opacity:.3">📈</div>
+          <p>Analyse a resume to see your score trend here.</p>
+          <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-sm btn-ghost">Analyse Now</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card animate-fadein" style="animation-delay:.30s">
+    <div class="card-header">
+      <div class="card-title"><span class="dot dot-purple"></span>Skills Distribution</div>
+    </div>
+    <div class="pie-layout">
+      <div class="chart-wrap" style="height:175px;width:175px;flex-shrink:0">
+        {% if pie_labels %}
+          <canvas id="pieChart"></canvas>
+        {% else %}
+          <div class="empty-chart"><div style="font-size:36px;opacity:.3">🥧</div><p>No data yet</p></div>
+        {% endif %}
+      </div>
+      <div class="pie-legend">
+        {% set pc=['#00D1FF','#9F7AEA','#F093FB','#48BB78','#F6AD55','#4FD1C5'] %}
+        {% for label in pie_labels %}
+          <div class="legend-item">
+            <span class="legend-dot" style="background:{{ pc[loop.index0 % pc|length] }}"></span>
+            <span class="legend-label">{{ label | title }}</span>
+            <span class="legend-val">{{ pie_data[loop.index0] }}</span>
+          </div>
+        {% endfor %}
+        {% if not pie_labels %}<p class="text-muted" style="font-size:12px">Run analyses to see skill breakdown</p>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Recent activity ──────────────────────────────────────── -->
+<div class="card animate-fadein" style="animation-delay:.35s">
+  <div class="card-header">
+    <div class="card-title"><span class="dot"></span>Recent Activity</div>
+    <a href="{{ url_for('history.index') }}" class="card-link">View Full History →</a>
+  </div>
+  {% if recent %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Resume</th><th>Job Role</th><th>Score</th><th>Date</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for a in recent %}
+        <tr>
+          <td class="fw-600">{% if a.resume %}{{ a.resume.original_name }}{% else %}N/A{% endif %}</td>
+          <td>{{ a.job_role_title }}</td>
+          <td><span class="score-text score-{{ a.ats_score | score_color }}">{{ a.ats_score | round(1) }}%</span></td>
+          <td class="text-muted">{{ a.created_at | datefmt }}</td>
+          <td><span class="badge badge-{{ a.ats_score | score_color }}">{{ a.ats_score | score_label }}</span></td>
+          <td><a href="{{ url_for('analysis.result', result_id=a.id) }}" class="btn btn-sm btn-ghost">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📄</div>
+    <h3>No analyses yet</h3>
+    <p>Upload your first resume to see your ATS scores here.</p>
+    <a href="{{ url_for('analysis.analyzer_page') }}" class="btn btn-primary">Analyse a Resume</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script>
+const lineLabels={{ chart_labels|tojson }}, lineScores={{ chart_scores|tojson }};
+const pieLabels ={{ pie_labels|tojson }},  pieData  ={{ pie_data|tojson }};
+document.addEventListener('DOMContentLoaded',function(){
+  if(lineLabels.length) initLineChart('lineChart',lineLabels,lineScores);
+  if(pieLabels.length)  initPieChart ('pieChart', pieLabels, pieData);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "layout/base.html" %}
+{% block title %}Resume Analyzer{% endblock %}
+{% block page_title %}Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="analyzer-layout">
+
+  <!-- ── LEFT: Upload + Config ─────────────────────────────── -->
+  <div>
+    <div class="card mb-3">
+      <div class="card-title mb-3"><span class="dot"></span>Upload Resume</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="resumeFile" name="resume_file" accept=".pdf" class="upload-input" />
+        <div id="uploadContent">
+          <span class="upload-icon">📄</span>
+          <p class="upload-text">Drag &amp; Drop your PDF here</p>
+          <p class="upload-sub">or <span class="upload-browse">browse files</span></p>
+          <p class="upload-hint">PDF only · Max 10 MB</p>
+        </div>
+        <div id="uploadProgress" style="display:none" class="upload-progress">
+          <div class="loading-bar"></div>
+          <p class="upload-text">Uploading &amp; parsing…</p>
+        </div>
+      </div>
+      <div id="fileLoaded" class="file-loaded" style="display:none">
+        <span class="file-loaded-icon">✅</span>
+        <div class="file-loaded-info">
+          <span id="loadedName" class="fw-600" style="font-size:13px"></span>
+          <span id="loadedSize" class="text-muted" style="font-size:11px"></span>
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="clearUpload()">✕</button>
+      </div>
+
+      <div class="or-divider"><span>or choose saved resume</span></div>
+      <div style="position:relative;overflow:visible">
+        <select class="form-select" id="resumeSelect" onchange="selectExisting(this.value)"
+                style="position:relative;z-index:200">
+          <option value="">— Select uploaded resume —</option>
+          {% for r in resumes %}
+            <option value="{{ r.id }}">{{ r.original_name }} ({{ r.file_size_kb() }})</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="card mb-3" style="overflow:visible">
+      <div class="card-title mb-3"><span class="dot dot-purple"></span>Job Configuration</div>
+
+      <!-- Stream selector -->
+      <div class="form-group" style="overflow:visible;margin-bottom:14px">
+        <label class="form-label"
+               style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+          Select Stream
+        </label>
+        <div style="position:relative;overflow:visible">
+          <select class="form-select" id="streamSelect" onchange="onStreamChange(this.value)"
+                  style="position:relative;z-index:200">
+            <option value="">— Select a stream —</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Civil">Civil</option>
+            <option value="Commerce">Commerce</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Medicine">Medicine</option>
+            <option value="Law">Law</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Job role selector -->
+      <div class="form-group" style="overflow:visible;margin-bottom:14px">
+        <label class="form-label"
+               style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+          Target Job Role
+        </label>
+        <div style="position:relative;overflow:visible">
+          <select class="form-select" id="jobRoleSelect" name="job_role"
+                  style="position:relative;z-index:190">
+            <option value="">— Select a stream first —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Custom role override -->
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label"
+               style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+          Or Enter Custom Role
+          <span style="font-size:9px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted);margin-left:6px">
+            (overrides dropdown)
+          </span>
+        </label>
+        <input type="text"
+               name="custom_role"
+               class="dark-input"
+               id="customRoleInput"
+               placeholder="e.g. React Developer, Data Engineer...">
+      </div>
+
+      <!-- Experience level -->
+      <div class="form-group" style="overflow:visible;margin-bottom:18px">
+        <label class="form-label"
+               style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">
+          Experience Level
+        </label>
+        <div style="position:relative;overflow:visible">
+          <select class="form-select" id="expLevel" name="experience_level"
+                  style="position:relative;z-index:180">
+            <option value="Junior">Junior (0–2 years)</option>
+            <option value="Mid" selected>Mid (2–5 years)</option>
+            <option value="Senior">Senior (5+ years)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="analyzeBtn" onclick="runAnalysis()">
+        🤖 Analyze Resume
+      </button>
+    </div>
+
+    <div class="card card-subtle">
+      <div class="card-title mb-2" style="font-size:12.5px"><span class="dot dot-teal"></span>Tips for Best Results</div>
+      <ul class="tips-list">
+        <li>Use a clean, single-column PDF layout</li>
+        <li>List skills explicitly in a dedicated Skills section</li>
+        <li>Use both full names and abbreviations (e.g. Machine Learning / ML)</li>
+        <li>Keep your resume under 2 pages for optimal parsing</li>
+        <li>Select the correct stream to get role-relevant ATS scoring</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Live Results ───────────────────────────────── -->
+  <div id="resultsPanel">
+    <div class="results-placeholder" id="resultsPlaceholder">
+      <div class="placeholder-icon">🎯</div>
+      <h3>Your ATS score will appear here</h3>
+      <p>Upload a resume, select a stream and job role, then click Analyze Resume.</p>
+    </div>
+
+    <div id="resultsContent" style="display:none">
+      <div class="card mb-3 text-center">
+        <div class="card-title mb-2" style="justify-content:center"><span class="dot"></span>ATS Match Score</div>
+        <div class="score-circle-wrap">
+          <div class="score-circle">
+            <svg width="170" height="170" viewBox="0 0 170 170">
+              <circle cx="85" cy="85" r="70" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+              <circle id="scoreArc" cx="85" cy="85" r="70" fill="none"
+                      stroke="url(#sg)" stroke-width="12"
+                      stroke-dasharray="440" stroke-dashoffset="440"
+                      stroke-linecap="round" transform="rotate(-90 85 85)"/>
+              <defs>
+                <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00D1FF"/>
+                  <stop offset="100%" stop-color="#6C63FF"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="score-label-wrap">
+              <span class="score-big" id="scoreValue">0%</span>
+              <span class="score-sublabel">MATCH</span>
+            </div>
+          </div>
+        </div>
+        <p id="scoreDescription" class="text-muted" style="font-size:13px;margin-top:8px"></p>
+        <div class="btn-row btn-row-center">
+          <a href="#" class="btn btn-primary" id="downloadReportBtn">📥 Download Report</a>
+          <a href="#" class="btn btn-ghost"   id="viewFullResultBtn">View Full Result →</a>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="mb-3">
+          <div class="skills-section-title green">✅ Extracted Skills <span class="skills-count" id="matchedCount"></span></div>
+          <div class="tags" id="matchedTags"></div>
+        </div>
+        <div>
+          <div class="skills-section-title red">❌ Missing Skills <span class="skills-count" id="missingCount"></span></div>
+          <div class="tags" id="missingTags"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title mb-3"><span class="dot"></span>AI Suggestions</div>
+        <div id="suggestionsList" class="suggestions-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+<script>
+const UPLOAD_URL  = "{{ url_for('resume.upload') }}";
+const ANALYZE_URL = "{{ url_for('analysis.run_analysis') }}";
+const RESULT_BASE = "/analyze/result/";
+const REPORT_BASE = "/analyze/report/";
+</script>
+{% endblock %}

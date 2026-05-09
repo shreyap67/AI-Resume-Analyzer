@@ -1,0 +1,37 @@
+{% extends "errors/base_error.html" %}
+
+{% block error_title %}500 – Server Error{% endblock %}
+
+{% block code_gradient %}linear-gradient(135deg, #EF4444, #FF4D9D){% endblock %}
+
+{% block error_emoji %}⚡{% endblock %}
+
+{% block error_code %}500{% endblock %}
+
+{% block error_heading %}Internal Server Error{% endblock %}
+
+{% block error_body %}
+  Something went wrong on our end — it's not you, it's us.
+  Our team has been notified automatically. Please wait a moment and try again.
+  <br><br>
+  <span style="font-size:13px;color:rgba(255,255,255,0.3)">
+    Error ID: {{ range(100000, 999999) | random if range is defined else '—' }}
+  </span>
+{% endblock %}
+
+{% block error_actions %}
+  <a href="javascript:history.back()" class="btn btn-primary">
+    ↩ Go Back
+  </a>
+  {% if current_user and current_user.is_authenticated %}
+    <a href="{{ url_for('dashboard.home') }}" class="btn btn-ghost">
+      Dashboard
+    </a>
+  {% else %}
+    <a href="{{ url_for('main.index') }}" class="btn btn-ghost">
+      Home
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block error_code_small %}HTTP 500 &nbsp;·&nbsp;{% endblock %}

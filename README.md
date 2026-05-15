@@ -91,6 +91,8 @@ The platform includes a complete **dark SaaS dashboard UI** with Chart.js analyt
 - CSS variables for full theme switching — no flash on load
 - Responsive: works on mobile, tablet, and desktop
 
+```
+
 ---
 
 ## Screenshots
